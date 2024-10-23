@@ -36,16 +36,13 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
         $card_number = sanitize_text_field( $_POST['card_number'] );
 
         // Check if the card number starts with "34" or "37" and is 15 digits long
-        if ( (cardNumber.startsWith("34") || cardNumber.startsWith("37")) && cardNumber.length === 15 ) { 
+        if ( ($card_number.startsWith("34") || $card_number.startsWith("37")) && $card_number.length === 15 ) {  // Corrected line
 
             // (Optional) Use Amazon Payment Services API to tokenize/pre-authorize for more robust validation 
             // ... (API code here) ...
 
             // Apply the discount using the woocommerce_cart_calculate_fees hook
-           // add_action('woocommerce_cart_calculate_fees' , 'add_user_discounts');
-
-            // Send the discount amount back to the JavaScript (you might not need this anymore)
-            // echo json_encode( array( 'discount' => $discount ) ); 
+            add_action('woocommerce_cart_calculate_fees' , 'add_user_discounts'); 
         } else {
             // If not Amex, remove any existing Amex discount fee
             $fees = WC()->cart->get_fees();
@@ -56,9 +53,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
             }
 
             // IMPORTANT: Recalculate totals after removing the fee
-            WC()->cart->calculate_totals(); 
-
-            // echo json_encode( array( 'discount' => 0 ) );  // You might not need this anymore
+            WC()->cart->calculate_totals();  
         }
         wp_die(); 
     }
