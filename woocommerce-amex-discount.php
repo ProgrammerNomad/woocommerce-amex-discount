@@ -32,7 +32,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
     // AJAX handler to check card type and apply/remove discount
     add_action( 'wp_ajax_check_amex_card', 'check_amex_card_callback' );
     add_action( 'wp_ajax_nopriv_check_amex_card', 'check_amex_card_callback' );
-    function check_amex_card_callback(WC_Cart $cart) {
+    function check_amex_card_callback() {
         $card_number = sanitize_text_field( $_POST['card_number'] );
 
         // Check if the card number starts with "34" or "37" and is 15 digits long
@@ -43,20 +43,40 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
             // ... (API code here) ...
 
             // Apply the discount using the woocommerce_cart_calculate_fees hook
-            add_action('woocommerce_cart_calculate_fees' , 'add_user_discounts'); 
+            
 
-            echo 'runing here';
+            $cart = WC()->cart;
 
             echo '<pre>';
-            print_r($cart->get_fees());
-           
 
+              // Calculate the amount to reduce (10% of the cart total)
+        $discount = $cart->total * 0.1;
+
+        // Check if the fee already exists to avoid duplicates
+        $fee_exists = false;
+        foreach ( $cart->get_fees() as $fee ) {
+            if ( $fee->name == __( 'American Express Discount', 'woocommerce-amex-discount' ) ) {
+                $fee_exists = true;
+                break;
+            }
+        }
+
+        if ( ! $fee_exists ) {
+            WC()->cart->add_fee(__('American Express Discount', 'woocommerce-amex-discount'), -$discount);
+        }
+
+        $cart->calculate_totals();  
+
+            
+        do_action('woocommerce_cart_calculate_fees' , 'add_user_discounts', 10); 
+
+            
         } else {
             // If not Amex, remove any existing Amex discount fee
             $fees = WC()->cart->get_fees();
             foreach ( $fees as $key => $fee ) {
                 if ( $fee->name == __( 'American Express Discount', 'woocommerce-amex-discount' ) ) {
-                    WC()->cart->remove_fee( $key );
+                   // WC()->cart->remove_fee( $key );
                 }
             }
 
@@ -68,9 +88,9 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
     // Function to add the discount (defined OUTSIDE check_amex_card_callback)
     function add_user_discounts( WC_Cart $cart ){
+        print_r($cart);
 
-
-      
+      die('here');
         // Calculate the amount to reduce (10% of the cart total)
         $discount = $cart->total * 0.1;
 
