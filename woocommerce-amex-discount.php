@@ -48,7 +48,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
             echo 'runing here';
 
             echo '<pre>';
-            print_r(WC()->cart->get_fees());
+            print_r($cart->get_fees());
            
 
         } else {
