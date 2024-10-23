@@ -36,7 +36,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
         $card_number = sanitize_text_field( $_POST['card_number'] );
 
         // Check if the card number starts with "34" or "37" and is 15 digits long
-        if ( ($card_number.startsWith("34") || $card_number.startsWith("37")) && $card_number.length === 15 ) {  // Corrected line
+        if ( (substr($card_number, 0, 2) === "34" || substr($card_number, 0, 2) === "37") && strlen($card_number) === 15 ) { 
 
             // (Optional) Use Amazon Payment Services API to tokenize/pre-authorize for more robust validation 
             // ... (API code here) ...
