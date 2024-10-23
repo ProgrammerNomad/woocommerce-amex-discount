@@ -32,17 +32,25 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
     // AJAX handler to check card type and apply/remove discount
     add_action( 'wp_ajax_check_amex_card', 'check_amex_card_callback' );
     add_action( 'wp_ajax_nopriv_check_amex_card', 'check_amex_card_callback' );
-    function check_amex_card_callback() {
+    function check_amex_card_callback(WC_Cart $cart) {
         $card_number = sanitize_text_field( $_POST['card_number'] );
 
         // Check if the card number starts with "34" or "37" and is 15 digits long
         if ( (substr($card_number, 0, 2) === "34" || substr($card_number, 0, 2) === "37") && strlen($card_number) === 15 ) { 
 
+            
             // (Optional) Use Amazon Payment Services API to tokenize/pre-authorize for more robust validation 
             // ... (API code here) ...
 
             // Apply the discount using the woocommerce_cart_calculate_fees hook
             add_action('woocommerce_cart_calculate_fees' , 'add_user_discounts'); 
+
+            echo 'runing here';
+
+            echo '<pre>';
+            print_r(WC()->cart->get_fees());
+           
+
         } else {
             // If not Amex, remove any existing Amex discount fee
             $fees = WC()->cart->get_fees();
@@ -60,6 +68,9 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
     // Function to add the discount (defined OUTSIDE check_amex_card_callback)
     function add_user_discounts( WC_Cart $cart ){
+
+
+      
         // Calculate the amount to reduce (10% of the cart total)
         $discount = $cart->total * 0.1;
 
